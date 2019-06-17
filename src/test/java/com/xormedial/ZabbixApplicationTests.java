@@ -1,4 +1,4 @@
-package com.xormedial.zabbix;
+package com.xormedial;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
