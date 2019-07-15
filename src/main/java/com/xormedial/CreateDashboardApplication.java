@@ -10,6 +10,7 @@ public class CreateDashboardApplication {
         Dashboard dashboard = new ZabbixDashboard();
         StrategyContext strategyContext = new StrategyContext(dashboard);
         strategyContext.excute();
+
 	}
 
 }

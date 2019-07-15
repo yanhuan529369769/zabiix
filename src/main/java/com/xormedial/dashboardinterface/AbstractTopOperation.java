@@ -9,7 +9,7 @@ public interface AbstractTopOperation {
 
     String createGraph(String name, List<String> itemIdlist, int graphtype);
 
-    List<String> creatHost(Integer hostNum, String ip, String hostBaseName, String groupId);
+    List<String> creatHost(List<String> hostNum, String ip, String groupId);
 
     String getHost();
 
