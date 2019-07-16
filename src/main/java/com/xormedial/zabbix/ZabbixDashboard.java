@@ -394,13 +394,13 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
                 String ingestBindWidthTotal = createItem("IngestBindWidth", fms5000HotsIdList.get(i), "grpsum" +
                         "[\"" + fms5000.get(i) + "\"," +
                         "\"IngestBindWidth\",last,0]");
-                String ingestSessionTotal = createItem("IngestSession", fms5000HotsIdList.get(i),
+                String ingestSessionTotal = createItem("IngestTotal", fms5000HotsIdList.get(i),
                         "grpsum[\"" + fms5000.get(i) + "\"," +
                                 "\"IngestSession\",last,0]");
                 String streamingBindWidthTotal = createItem("StreamingBindWidth", fms5000HotsIdList.get(i),
                         "grpsum[\"" + fms5000.get(i) + "\"," +
                                 "\"StreamingBindWidth\",last,0]");
-                String streamingSessionTotal = createItem("StreamingSession", fms5000HotsIdList.get(i), "grpsum" +
+                String streamingSessionTotal = createItem("StreamingTotal", fms5000HotsIdList.get(i), "grpsum" +
                         "[\"" + fms5000.get(i) + "\"," +
                         "\"StreamingSession\",last,0]");
 
