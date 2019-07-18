@@ -11,13 +11,13 @@ public interface AbstractTopOperation {
 
     List<String> creatHost(List<String> hostNum, String ip, String groupId);
 
-    String getHost();
+    List<String> getHost(String groupId);
 
     Map<String, List<String>> getHostGroupName();
 
     String getHostGroupId(String hostname);
 
-    void createDashboard(List<String> groupIds, List<Map<String, String>> garphidAndName, String dashboardName);
+    void createDashboard(List<String> groupIds, List<Map<String, String>> garphidAndName, String dashboardName, boolean flag, int index);
 
     String getDashboard(String dashboardName);
 
