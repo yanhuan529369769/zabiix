@@ -37,7 +37,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
 
     public void login() {
         /**
-         * Í¨¹ıÓÃ»§ÃûºÍÃÜÂëÉèÖÃAUTH£¬»ñµÃÈ¨ÏŞ @
+         * é€šè¿‡ç”¨æˆ·åå’Œå¯†ç è®¾ç½®AUTHï¼Œè·å¾—æƒé™ @
          */
         Map<String, Object> params = new HashMap<>();
 
@@ -53,7 +53,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
     }
 
     @Override
-    public String createGraph(String name, List<String> itemIdlist, int graphtype) {
+    public String createGraph(String name, List<String> itemIdlist, int graphtype, int calc_fnc) {
         Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params.put("width", 900);
@@ -64,6 +64,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
             Map m = new HashMap();
             m.put("itemid", itemId);
             m.put("color", ZabbixColor.randomColor());
+            m.put("calc_fnc", calc_fnc);
             items.add(m);
         }
         params.put("gitems", items);
@@ -75,7 +76,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
     }
 
     @Override
-    public String createItem(String name, String hostId, String key) {
+    public String createItem(String name, String hostId, String key, String units) {
         String str = "{\n" +
                 "    \"jsonrpc\": \"2.0\",\n" +
                 "    \"method\": \"item.create\",\n" +
@@ -83,9 +84,9 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
                 "        \"name\": \"" + name + "\",\n" +
                 "        \"hostid\": \"" + hostId + "\",\n" +
                 "        \"type\": 8,\n" +
-                "        \"interfaceid\": "+ getHostinterface(hostId)+",\n" +
+                "        \"interfaceid\": " + getHostinterface(hostId) + ",\n" +
                 "        \"value_type\": 3,\n" +
-                "        \"delay\": \"10\"\n" +
+                "        \"delay\": \"5\"\n" +
                 "    },\n" +
                 "    \"id\": 1\n" +
                 "}";
@@ -93,6 +94,8 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
         Map map = JSON.parseObject(str, Map.class);
         map.put("auth", user.getAuth());
         ((Map) map.get("params")).put("key_", key);
+        if (!StringUtils.isEmpty(units))
+            ((Map) map.get("params")).put("units", units);
         String s = HttpUtil.sendPost(map, ConfigUtil.ZABBIX_URL);
         JSONArray hostids = JSON.parseObject(s).getJSONObject("result").getJSONArray("itemids");
         return (String) hostids.get(0);
@@ -140,7 +143,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
                             iterator.remove();
                         }
                     }
-                    if(!flag){
+                    if (!flag) {
                         for (String groupId : groupIds) {
                             Map m = new HashMap();
                             m.put("name", "groupids");
@@ -148,7 +151,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
                             m.put("value", groupId);
                             fields.add(m);
                         }
-                    }else {
+                    } else {
                         Map m = new HashMap();
                         m.put("name", "groupids");
                         m.put("type", "2");
@@ -206,7 +209,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
     @Override
     public void deleteDashboard(String dashboardName) {
         List params = new ArrayList();
-        if(getDashboard(dashboardName) == null) return;
+        if (getDashboard(dashboardName) == null) return;
         params.add(getDashboard(dashboardName));
         String s = HttpUtil.sendPost(getRequestMap("dashboard.delete", params), ConfigUtil.ZABBIX_URL);
         System.out.println(s);
@@ -221,12 +224,12 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
         params.put("dashboardids", groupids);
         String s = HttpUtil.sendPost(getRequestMap("dashboard.get", params), ConfigUtil.ZABBIX_URL);
         JSONObject result = JSON.parseObject(s).getJSONArray("result").getJSONObject(0);
-        ///±£´æÊôĞÔµ½b.propertiesÎÄ¼ş
+        ///ä¿å­˜å±æ€§åˆ°b.propertiesæ–‡ä»¶
         Properties prop = new Properties();
         System.out.println(ConfigUtil.getPath(ZabbixDashboard.class));
         try {
             File file = new File("./dashboard.properties");
-            FileOutputStream oFile = new FileOutputStream(file, false);//true±íÊ¾×·¼Ó´ò¿ª
+            FileOutputStream oFile = new FileOutputStream(file, false);//trueè¡¨ç¤ºè¿½åŠ æ‰“å¼€
             prop.setProperty("dashboardJson", result.toJSONString());
             prop.store(oFile, "last dashboard json");
             oFile.close();
@@ -257,7 +260,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
 
 
     /**
-     * ´´½¨Ã¿¸ö´óÇøµÄ³éÏó²ã,¹ÒÔÚzabbix_serverÏÂÃæ
+     * åˆ›å»ºæ¯ä¸ªå¤§åŒºçš„æŠ½è±¡å±‚,æŒ‚åœ¨zabbix_serverä¸‹é¢
      *
      * @param hostNum
      * @param ip
@@ -373,14 +376,14 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
         }
         Map<String, List<String>> resultMap = new HashMap<>();
         resultMap.put("FMS5000", fms);
-//        resultMap.put("SSS", sss);   ÏÈ·âÓ¡
+//        resultMap.put("SSS", sss);   å…ˆå°å°
 //        resultMap.put("OSTR", ostr);
         return resultMap;
     }
 
     @Override
     public void createFinalDashboard() {
-        //  ÏÈ°Ñhost¹Òµ½zabbix_serverÏÂ£¬»ñÈ¡ËùÓĞFMS500 SSS OSTR¿ªÍ·µÄgroupµÄname£¬È¥´´½¨item
+        //  å…ˆæŠŠhostæŒ‚åˆ°zabbix_serverä¸‹ï¼Œè·å–æ‰€æœ‰FMS500 SSS OSTRå¼€å¤´çš„groupçš„nameï¼Œå»åˆ›å»ºitem
         Map<String, List<String>> groupName = getHostGroupName();
         List<String> fms5000 = groupName.get("FMS5000");
         List<String> fms5000GroupIds = getHostGroupId(fms5000);
@@ -397,6 +400,8 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
 
         List<String> fmsIngestSessionItemIdList = new ArrayList<>();
         List<String> fmsStreamingSessionItemIdList = new ArrayList<>();
+        List<String> fmsIngestBindWidthItemIdList = new ArrayList<>();
+        List<String> fmsStreamingBindWidthtemIdList = new ArrayList<>();
 
         if (fms5000 != null && fms5000.size() > 0) {
             //  createVirtualHost
@@ -404,7 +409,7 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
             deleteHost(fms5000);
 
             List<String> fms5000HotsIdList = creatHost(fms5000, "127.0.0.1", zabbix_servers_groupid);
-            //  ´´½¨item
+            //  åˆ›å»ºitem
             for (int i = 0; i < fms5000HotsIdList.size(); i++) {
 
 //                String itemId = creatItem("IngestBindWidthTotal", "grpsum[\"" + fms5000.get(i) + "\"," +
@@ -412,19 +417,21 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
 
                 String ingestBindWidthTotal = createItem("IngestBindWidth", fms5000HotsIdList.get(i), "grpsum" +
                         "[\"" + fms5000.get(i) + "\"," +
-                        "\"IngestBindWidth\",last,0]");
+                        "\"IngestBindWidth\",last,0]", "M");
                 String ingestSessionTotal = createItem("IngestTotal", fms5000HotsIdList.get(i),
                         "grpsum[\"" + fms5000.get(i) + "\"," +
-                                "\"IngestSession\",last,0]");
+                                "\"IngestSession\",last,0]", "");
                 String streamingBindWidthTotal = createItem("StreamingBindWidth", fms5000HotsIdList.get(i),
                         "grpsum[\"" + fms5000.get(i) + "\"," +
-                                "\"StreamingBindWidth\",last,0]");
+                                "\"StreamingBindWidth\",last,0]", "M");
                 String streamingSessionTotal = createItem("StreamingTotal", fms5000HotsIdList.get(i), "grpsum" +
                         "[\"" + fms5000.get(i) + "\"," +
-                        "\"StreamingSession\",last,0]");
+                        "\"StreamingSession\",last,0]", "");
 
                 fmsIngestSessionItemIdList.add(ingestSessionTotal);
+                fmsIngestBindWidthItemIdList.add(ingestBindWidthTotal);
                 fmsStreamingSessionItemIdList.add(streamingSessionTotal);
+                fmsStreamingBindWidthtemIdList.add(streamingBindWidthTotal);
             }
         }
         if (sss != null && sss.size() > 0) {
@@ -434,41 +441,48 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
 //            creatHost(ostr.size(), "127.0.0.1", "OSTR", zabbix_servers_groupid);
         }
 
-        //  FMS5000Ã¿¸öÇøµÄ´óÇøµÄ4¸öitem¶¼´´½¨ºÃºó´´½¨graph ´´½¨µ½127.0.0.1ÉÏ
-        String IngestSessionPie = createGraph("IngestSessionPie", fmsIngestSessionItemIdList, 2);
-        String IngestSessionLine = createGraph("IngestSessionLine", fmsIngestSessionItemIdList, 0);
-        String StreamingSessionPie = createGraph("StreamingSessionPie", fmsStreamingSessionItemIdList, 2);
-        String StreamingSessionLine = createGraph("StreamingSessionLine", fmsStreamingSessionItemIdList, 0);
+        //  FMS5000æ¯ä¸ªåŒºçš„å¤§åŒºçš„4ä¸ªiteméƒ½åˆ›å»ºå¥½ååˆ›å»ºgraph åˆ›å»ºåˆ°127.0.0.1ä¸Š
+        String ingestBindWidthLine = createGraph("IngestBindWidthLine", fmsIngestBindWidthItemIdList, 0, 7);
+        String ingestSessionLine = createGraph("IngestSessionLine", fmsIngestSessionItemIdList, 0, 7);
+        String streamingSessionPie = createGraph("StreamingSessionPie", fmsStreamingSessionItemIdList, 2, 9);
+        String streamingSessionLine = createGraph("StreamingSessionLine", fmsStreamingSessionItemIdList, 0, 7);
+        String streamingBindWidthPie = createGraph("StreamingBindWidthPie", fmsStreamingBindWidthtemIdList, 2, 9);
+        String streamingBindWidthLine = createGraph("StreamingBindWidthLine", fmsStreamingBindWidthtemIdList, 0, 7);
 
 
-        List<Map<String, String>> garphidAndName = assembleGarphidAndName(IngestSessionPie, IngestSessionLine, StreamingSessionPie, StreamingSessionLine);
+        List<Map<String, String>> garphidAndName = assembleGarphidAndName(ingestBindWidthLine, ingestSessionLine, streamingSessionPie,
+                streamingSessionLine, streamingBindWidthPie, streamingBindWidthLine);
+
 
         createDashboard(fms5000GroupIds, garphidAndName, "FMS5000Summary", false, 0);
 
     }
 
-    protected List<Map<String, String>> assembleGarphidAndName(String ingestSessionPie, String ingestSessionLine, String streamingSessionPie, String streamingSessionLine) {
+    protected List<Map<String, String>> assembleGarphidAndName(String ingestBindWidthLine, String ingestSessionLine, String streamingSessionPie, String streamingSessionLine, String streamingBindWidthPie, String streamingBindWidthLine) {
         List<Map<String, String>> garphidAndName = new ArrayList<>();
-        Map temp1 = new HashMap();
-        temp1.put("name", "CurrentIngest");
-        temp1.put("value", ingestSessionPie);
-        garphidAndName.add(temp1);
-        Map temp2 = new HashMap();
-        temp2.put("name", "IngestHistory");
-        temp2.put("value", ingestSessionLine);
-        garphidAndName.add(temp2);
-        Map temp3 = new HashMap();
-        temp3.put("name", "CurrentStreaming");
-        temp3.put("value", streamingSessionPie);
-        garphidAndName.add(temp3);
-        Map temp4 = new HashMap();
-        temp4.put("name", "StreamingHistory");
-        temp4.put("value", streamingSessionLine);
-        garphidAndName.add(temp4);
+        addGrapgNameInMap(garphidAndName, "\u5f53\u524d\u70b9\u6d41\u6570", streamingSessionPie);
+//        addGrapgNameInMap(garphidAndName, "å½“å‰ç‚¹æµæ•°", streamingSessionPie);
+//        addGrapgNameInMap(garphidAndName, "ç‚¹æµæ•°å†å²", streamingSessionLine);
+        addGrapgNameInMap(garphidAndName, "\u70b9\u6d41\u6570\u5386\u53f2", streamingSessionLine);
+//        addGrapgNameInMap(garphidAndName, "å½“å‰ç‚¹æµå¸¦å®½ï¼ˆMB/sï¼‰", streamingBindWidthPie);
+        addGrapgNameInMap(garphidAndName, "\u5f53\u524d\u70b9\u6d41\u5e26\u5bbd\uff08MB/s\uff09", streamingBindWidthPie);
+//        addGrapgNameInMap(garphidAndName, "ç‚¹æµå¸¦å®½å†å²ï¼ˆMB/sï¼‰", streamingBindWidthLine);
+        addGrapgNameInMap(garphidAndName, "\u70b9\u6d41\u5e26\u5bbd\u5386\u53f2\uff08MB/s\uff09", streamingBindWidthLine);
+//        addGrapgNameInMap(garphidAndName, "åŠ è½½æ•°å†å²", ingestSessionLine);
+        addGrapgNameInMap(garphidAndName, "\u52a0\u8f7d\u6570\u5386\u53f2", ingestSessionLine);
+//        addGrapgNameInMap(garphidAndName, "åŠ è½½å¸¦å®½å†å²ï¼ˆMB/sï¼‰", ingestBindWidthLine);
+        addGrapgNameInMap(garphidAndName, "\u52a0\u8f7d\u5e26\u5bbd\u5386\u53f2\uff08MB/s\uff09", ingestBindWidthLine);
         return garphidAndName;
     }
 
-    protected void deleteHost(List<String> fms5000){
+    private void addGrapgNameInMap(List<Map<String, String>> garphidAndName, String key, String value) {
+        Map map = new HashMap();
+        map.put("name", key);
+        map.put("value", value);
+        garphidAndName.add(map);
+    }
+
+    protected void deleteHost(List<String> fms5000) {
         List params = new ArrayList();
 
         params.addAll(getHostByName(fms5000));
@@ -477,12 +491,14 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
 
 
     }
+
     public static void main(String[] args) {
-        new ZabbixDashboard().getHostByName(Arrays.asList(new String[]{"XorFMS5000-RegionA"}));
+//        new ZabbixDashboard().getHostByName(Arrays.asList(new String[]{"XorFMS5000-RegionA"}));
 
 
     }
-    protected List<String> getHostByName(List<String> fms5000){
+
+    protected List<String> getHostByName(List<String> fms5000) {
         List<String> hostids = new ArrayList<>();
         for (String s : fms5000) {
             Map<String, Object> params = new HashMap<>();

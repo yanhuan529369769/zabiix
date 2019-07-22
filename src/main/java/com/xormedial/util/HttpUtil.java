@@ -34,14 +34,15 @@ public class HttpUtil {
             connection.setUseCaches(false);
             connection.setInstanceFollowRedirects(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Accept", "application/json"); // 设置接收数据的格式
+            connection.setRequestProperty("Accept", "application/json-rpc"); // 设置接收数据的格式
             connection.setRequestProperty("Content-Type", "application/json"); // 设置发送数据的格式
+//            connection.setRequestProperty("content-length", "2000"); // 设置发送数据的格式
 
             connection.connect();
 
             //POST请求
             out = new DataOutputStream(connection.getOutputStream());
-            out.writeBytes(param);
+            out.write(param.getBytes("UTF-8"));
             out.flush();
 
             //读取响应

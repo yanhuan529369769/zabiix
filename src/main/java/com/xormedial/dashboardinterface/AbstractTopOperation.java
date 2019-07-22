@@ -5,9 +5,9 @@ import java.util.Map;
 
 public interface AbstractTopOperation {
 
-    String createItem(String name, String hostId, String key);
+    String createItem(String name, String hostId, String key, String units);
 
-    String createGraph(String name, List<String> itemIdlist, int graphtype);
+    String createGraph(String name, List<String> itemIdlist, int graphtype, int calc_fnc);
 
     List<String> creatHost(List<String> hostNum, String ip, String groupId);
 

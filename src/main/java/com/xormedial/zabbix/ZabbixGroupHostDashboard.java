@@ -28,15 +28,15 @@ public class ZabbixGroupHostDashboard extends ZabbixDashboard {
                 itemStreamingSessions.add(itemStreamingSession);
             }
 
-            String IngestSessionPie = createGraph("IngestSessionPieUnderGroup", itemIngestSessions, 2);
+            /*String IngestSessionPie = createGraph("IngestSessionPieUnderGroup", itemIngestSessions, 2);
             String IngestSessionLine = createGraph("IngestSessionLineUnderGroup", itemIngestSessions, 0);
             String StreamingSessionPie = createGraph("StreamingSessionPieUnderGroup", itemStreamingSessions, 2);
             String StreamingSessionLine = createGraph("StreamingSessionLineUnderGroup", itemStreamingSessions, 0);
 
             List<Map<String, String>> garphidAndName =
-                    assembleGarphidAndName(IngestSessionPie, IngestSessionLine, StreamingSessionPie, StreamingSessionLine);
+                    assembleGarphidAndName(IngestSessionPie, IngestSessionLine, StreamingSessionPie, StreamingSessionLine, StreamingBindWidthPie, StreamingBindWidthLine);
 
-            createDashboard(fms5000GroupIds, garphidAndName, fms5000.get(i) + "_Summary", true, i);
+            createDashboard(fms5000GroupIds, garphidAndName, fms5000.get(i) + "_Summary", true, i);*/
         }
     }
 
