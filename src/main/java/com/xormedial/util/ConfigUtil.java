@@ -8,8 +8,8 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:config/dashboard.properties")
 public class ConfigUtil {
 
-//    public static String ZABBIX_URL = "http://127.0.0.1/zabbix/api_jsonrpc.php";
-    public static String ZABBIX_URL = "http://10.50.4.59/zabbix/api_jsonrpc.php";
+    public static String ZABBIX_URL = "http://127.0.0.1/zabbix/api_jsonrpc.php";
+//    public static String ZABBIX_URL = "http://10.50.4.59/zabbix/api_jsonrpc.php";
 
 /*    public static String OID_404ERROR = ".1.3.6.1.4.1.22839.4.1.1000.2.1.98";
     public static String OID_454ERROR = ".1.3.6.1.4.1.22839.4.1.1000.2.1.99";

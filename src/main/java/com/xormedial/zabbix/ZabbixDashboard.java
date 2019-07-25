@@ -511,16 +511,16 @@ public class ZabbixDashboard implements AbstractTopOperation, Dashboard {
             List<String> fms5000HotsIdList = creatHost(fms5000, "127.0.0.1", zabbix_servers_groupid);
             //  创建item
             for (int i = 0; i < fms5000HotsIdList.size(); i++) {
-                String ingestBindWidthTotal = createItem("IngestBindWidth", fms5000HotsIdList.get(i), "grpsum" +
+                String ingestBindWidthTotal = createItem("FMS5000加载带宽", fms5000HotsIdList.get(i), "grpsum" +
                         "[\"" + fms5000.get(i) + "\"," +
                         "\"IngestBindWidth\",last,0]", "MB/s", 8);
-                String ingestSessionTotal = createItem("IngestTotal", fms5000HotsIdList.get(i),
+                String ingestSessionTotal = createItem("FMS5000加载数", fms5000HotsIdList.get(i),
                         "grpsum[\"" + fms5000.get(i) + "\"," +
                                 "\"IngestSession\",last,0]", "", 8);
-                String streamingBindWidthTotal = createItem("StreamingBindWidth", fms5000HotsIdList.get(i),
+                String streamingBindWidthTotal = createItem("FMS5000点流带宽", fms5000HotsIdList.get(i),
                         "grpsum[\"" + fms5000.get(i) + "\"," +
                                 "\"StreamingBindWidth\",last,0]", "MB/s", 8);
-                String streamingSessionTotal = createItem("StreamingTotal", fms5000HotsIdList.get(i), "grpsum" +
+                String streamingSessionTotal = createItem("FMS5000点流数", fms5000HotsIdList.get(i), "grpsum" +
                         "[\"" + fms5000.get(i) + "\"," +
                         "\"StreamingSession\",last,0]", "", 8);
 
